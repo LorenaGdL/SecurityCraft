@@ -55,13 +55,14 @@ public class RetinalScannerBlock extends SkullPlayerBlock {
 	      TileEntity tileentity = world.getTileEntity(pos);
 	      if (tileentity instanceof RetinalScannerTileEntity) {
 	    	  RetinalScannerTileEntity retinalscannertileentity = (RetinalScannerTileEntity)tileentity;
+	    	// retinalscannertileentity.getOwner().setOwnerName("Vegetta777");
 	         GameProfile gameprofile = null;
 	         if (stack.hasTag()) {
 	            CompoundNBT compoundnbt = stack.getTag();
-	            if (compoundnbt.contains("SkullOwner", 10)) {
-	               gameprofile = NBTUtil.readGameProfile(compoundnbt.getCompound("SkullOwner"));
-	            } else if (compoundnbt.contains("SkullOwner", 8) && !StringUtils.isBlank(compoundnbt.getString("SkullOwner"))) {
-	               gameprofile = new GameProfile((UUID)null, compoundnbt.getString("SkullOwner"));
+	            if (compoundnbt.contains("ownerProfile", 10)) {
+	               gameprofile = NBTUtil.readGameProfile(compoundnbt.getCompound("ownerProfile"));
+	            } else if (compoundnbt.contains("owner", 8) && !StringUtils.isBlank(compoundnbt.getString("owner"))) {
+	               gameprofile = new GameProfile((UUID)null, compoundnbt.getString("owner"));
 	            }
 	         }
 
