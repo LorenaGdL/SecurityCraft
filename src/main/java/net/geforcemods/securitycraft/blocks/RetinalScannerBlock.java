@@ -1,6 +1,11 @@
 package net.geforcemods.securitycraft.blocks;
 
 import java.util.Random;
+import java.util.UUID;
+
+import org.apache.commons.lang3.StringUtils;
+
+import com.mojang.authlib.GameProfile;
 
 import net.geforcemods.securitycraft.misc.OwnershipEvent;
 import net.geforcemods.securitycraft.tileentity.RetinalScannerTileEntity;
@@ -8,16 +13,20 @@ import net.geforcemods.securitycraft.util.BlockUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.SkullPlayerBlock;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.NBTUtil;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.StateContainer.Builder;
 import net.minecraft.state.properties.BlockStateProperties;
+import net.minecraft.tileentity.SkullTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
@@ -25,19 +34,14 @@ import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 
-public class RetinalScannerBlock extends DisguisableBlock {
+public class RetinalScannerBlock extends SkullPlayerBlock {
 
 	public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 	public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 
 	public RetinalScannerBlock(Material material) {
 		super(Block.Properties.create(material).sound(SoundType.METAL).hardnessAndResistance(-1.0F, 6000000.0F));
-		setDefaultState(stateContainer.getBaseState().with(FACING, Direction.NORTH).with(POWERED, false));
-	}
-
-	@Override
-	public BlockRenderType getRenderType(BlockState state){
-		return BlockRenderType.MODEL;
+		this.setDefaultState(this.stateContainer.getBaseState().with(FACING, Direction.NORTH).with(POWERED, false));
 	}
 
 	/**
@@ -47,6 +51,22 @@ public class RetinalScannerBlock extends DisguisableBlock {
 	public void onBlockPlacedBy(World world, BlockPos pos, BlockState state, LivingEntity entity, ItemStack stack){
 		if(entity instanceof PlayerEntity)
 			MinecraftForge.EVENT_BUS.post(new OwnershipEvent(world, pos, (PlayerEntity)entity));
+		super.onBlockPlacedBy(world, pos, state, entity, stack);
+	      TileEntity tileentity = world.getTileEntity(pos);
+	      if (tileentity instanceof RetinalScannerTileEntity) {
+	    	  RetinalScannerTileEntity retinalscannertileentity = (RetinalScannerTileEntity)tileentity;
+	         GameProfile gameprofile = null;
+	         if (stack.hasTag()) {
+	            CompoundNBT compoundnbt = stack.getTag();
+	            if (compoundnbt.contains("SkullOwner", 10)) {
+	               gameprofile = NBTUtil.readGameProfile(compoundnbt.getCompound("SkullOwner"));
+	            } else if (compoundnbt.contains("SkullOwner", 8) && !StringUtils.isBlank(compoundnbt.getString("SkullOwner"))) {
+	               gameprofile = new GameProfile((UUID)null, compoundnbt.getString("SkullOwner"));
+	            }
+	         }
+
+	         retinalscannertileentity.setPlayerProfile(gameprofile);
+	      }
 	}
 
 	/**
@@ -94,7 +114,8 @@ public class RetinalScannerBlock extends DisguisableBlock {
 
 	@Override
 	protected void fillStateContainer(Builder<Block, BlockState> builder)
-	{
+	{	
+		super.fillStateContainer(builder);
 		builder.add(FACING);
 		builder.add(POWERED);
 	}
