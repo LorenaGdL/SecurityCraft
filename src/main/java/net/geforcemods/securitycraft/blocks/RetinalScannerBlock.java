@@ -31,6 +31,8 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.shapes.ISelectionContext;
+import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
@@ -39,6 +41,8 @@ public class RetinalScannerBlock extends SkullPlayerBlock {
 
 	public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 	public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
+	   protected static final VoxelShape SHAPE = Block.makeCuboidShape(0.0D, 0.0D, 0.0D, 16.0D, 16.0D, 16.0D);
+
 
 	public RetinalScannerBlock(Material material) {
 		super(Block.Properties.create(material).sound(SoundType.METAL).hardnessAndResistance(-1.0F, 6000000.0F));
@@ -49,6 +53,23 @@ public class RetinalScannerBlock extends SkullPlayerBlock {
 	    public BlockRenderLayer getRenderLayer() {
 	        return BlockRenderLayer.CUTOUT_MIPPED;
 	    }
+	 
+	 @Override
+	 public VoxelShape getShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context) {
+	      return SHAPE;
+	   }
+	 
+	 @Override
+	 public VoxelShape getRenderShape(BlockState state, IBlockReader worldIn, BlockPos pos) {
+	      return SHAPE;
+	   }
+	 
+	 @Override
+	 public VoxelShape getCollisionShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context) {
+	      return SHAPE;
+	   }
+	 
+	
 	 
 	/**
 	 * Called when the block is placed in the world.

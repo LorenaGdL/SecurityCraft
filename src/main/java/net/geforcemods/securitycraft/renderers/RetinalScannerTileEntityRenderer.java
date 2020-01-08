@@ -76,9 +76,7 @@ public class RetinalScannerTileEntityRenderer extends TileEntityRenderer<Retinal
 
    public void render(float x, float y, float z, @Nullable Direction facing, float rotationIn, SkullBlock.ISkullType type, @Nullable GameProfile playerProfile, int destroyStage, float animationProgress) {
       GenericHeadModel genericheadmodel = MODELS.get(type);
-      final ResourceLocation origTexture = new ResourceLocation("securitycraft:block/retinal_scanner_front");
-      TextureAtlasSprite sprite = Minecraft.getInstance().getTextureMap().getAtlasSprite(origTexture.toString());
-
+      
       if (destroyStage >= 0) {
          this.bindTexture(DESTROY_STAGES[destroyStage]);
          GlStateManager.matrixMode(5890);
@@ -91,9 +89,10 @@ public class RetinalScannerTileEntityRenderer extends TileEntityRenderer<Retinal
       }
 
       GlStateManager.pushMatrix();
+      
       GlStateManager.disableCull();
       if (facing == null) {
-         GlStateManager.translatef(x + 0.5F, y, z + 0.5F);
+         GlStateManager.translatef(x + 0.5F, y + 1.0F/16.0F, z + 0.25F);
       } else {
          switch(facing) {
          case NORTH:
@@ -118,30 +117,72 @@ public class RetinalScannerTileEntityRenderer extends TileEntityRenderer<Retinal
          GlStateManager.setProfile(GlStateManager.Profile.PLAYER_SKIN);
       }
 
-      genericheadmodel.func_217104_a(animationProgress, 0.0F, 0.0F, rotationIn, 0.0F, 0.0625F);
+      genericheadmodel.func_217104_a(animationProgress, 0.0F, 0.0F, rotationIn, 0.0F, 0.0625F); //renders head
+      
+      GlStateManager.popMatrix();
       
       //CUSTOM CODE -----  
-      
+      GlStateManager.pushMatrix();
+
+      GlStateManager.scalef(1.0F, 1.0F, 1.0F); //restore scaling
+      GlStateManager.translatef(x, y, z); //translate to block corner
+      //RenderHelper.disableStandardItemLighting();
+      GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+      GlStateManager.enableBlend();
+
       Tessellator tessellator = Tessellator.getInstance();
       BufferBuilder bufferbuilder = tessellator.getBuffer();
       
       this.bindTexture (new ResourceLocation(SecurityCraft.MODID, "textures/block/retinal_scanner_front.png"));
-      RenderHelper.disableStandardItemLighting();
-      GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-      GlStateManager.enableBlend();
-      GlStateManager.disableCull();
 
       bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-      bufferbuilder.pos(-0.5, 0, -0.2).tex(0, 1).endVertex();
-      bufferbuilder.pos(0.5, 0, -0.2).tex(1, 1).endVertex();
-      bufferbuilder.pos(0.5, -1, -0.2).tex(1, 0).endVertex();
-      bufferbuilder.pos(-0.5, -1, -0.2).tex(0, 0).endVertex();
+      bufferbuilder.pos(0, 0, 0).tex(0, 1).endVertex();
+      bufferbuilder.pos(1, 0, 0).tex(1, 1).endVertex();
+      bufferbuilder.pos(1, 1, 0).tex(1, 0).endVertex();
+      bufferbuilder.pos(0, 1, 0).tex(0, 0).endVertex();
 
       tessellator.draw();
+      
+      this.bindTexture (new ResourceLocation("textures/block/furnace_side.png"));
 
-      GlStateManager.enableCull();
+      bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+      bufferbuilder.pos(1, 0, 0).tex(0, 1).endVertex();
+      bufferbuilder.pos(1, 0, 1).tex(1, 1).endVertex();
+      bufferbuilder.pos(1, 1, 1).tex(1, 0).endVertex();
+      bufferbuilder.pos(1, 1, 0).tex(0, 0).endVertex();
+      
+      tessellator.draw();
+      
+      bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+      bufferbuilder.pos(0, 0, 0).tex(0, 1).endVertex();
+      bufferbuilder.pos(0, 0, 1).tex(1, 1).endVertex();
+      bufferbuilder.pos(0, 1, 1).tex(1, 0).endVertex();
+      bufferbuilder.pos(0, 1, 0).tex(0, 0).endVertex();
+      
+      tessellator.draw();
+      
+      bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+      bufferbuilder.pos(0, 0, 1).tex(0, 1).endVertex();
+      bufferbuilder.pos(1, 0, 1).tex(1, 1).endVertex();
+      bufferbuilder.pos(1, 1, 1).tex(1, 0).endVertex();
+      bufferbuilder.pos(0, 1, 1).tex(0, 0).endVertex();
+      
+      tessellator.draw();
+      
+      this.bindTexture (new ResourceLocation("textures/block/furnace_top.png"));
+
+      bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+      bufferbuilder.pos(0, 1, 0).tex(0, 1).endVertex();
+      bufferbuilder.pos(1, 1, 0).tex(1, 1).endVertex();
+      bufferbuilder.pos(1, 1, 1).tex(1, 0).endVertex();
+      bufferbuilder.pos(0, 1, 1).tex(0, 0).endVertex();
+      
+      tessellator.draw();
+
+      //RenderHelper.enableStandardItemLighting();
       GlStateManager.disableBlend();
-      RenderHelper.enableStandardItemLighting();
+      GlStateManager.enableCull();
+
 
       // END CUSTOM CODE ---------
       
