@@ -90,34 +90,57 @@ public class RetinalScannerTileEntityRenderer extends TileEntityRenderer<Retinal
 
       GlStateManager.pushMatrix();
       
-      GlStateManager.disableCull();
-      if (facing == null) {
-         GlStateManager.translatef(x + 0.5F, y + 1.0F/16.0F, z + 0.25F);
-      } else {
-         switch(facing) {
-         case NORTH:
-            GlStateManager.translatef(x + 0.5F, y + 0.25F, z + 0.74F);
-            break;
-         case SOUTH:
-            GlStateManager.translatef(x + 0.5F, y + 0.25F, z + 0.26F);
-            break;
-         case WEST:
-            GlStateManager.translatef(x + 0.74F, y + 0.25F, z + 0.5F);
-            break;
-         case EAST:
-         default:
-            GlStateManager.translatef(x + 0.26F, y + 0.25F, z + 0.5F);
-         }
-      }
+      //GlStateManager.disableCull();
+//      if (facing == null) {
+//         GlStateManager.translatef(x + 0.5F, y + 1.0F/16.0F, z + 0.25F);
+//      } else {
+//         switch(facing) {
+//         case NORTH:
+//            GlStateManager.translatef(x + 0.5F, y + 0.25F, z + 0.74F);
+//            break;
+//         case SOUTH:
+//            GlStateManager.translatef(x + 0.5F, y + 0.25F, z + 0.26F);
+//            break;
+//         case WEST:
+//            GlStateManager.translatef(x + 0.74F, y + 0.25F, z + 0.5F);
+//            break;
+//         case EAST:
+//         default:
+//            GlStateManager.translatef(x + 0.26F, y + 0.25F, z + 0.5F);
+//         }
+//      }
+      
+      GlStateManager.translatef(x + 0.25F, y + 1.0F/16.0F, z); //translate to block corner
 
       GlStateManager.enableRescaleNormal();
       GlStateManager.scalef(-1.0F, -1.0F, 1.0F);
       GlStateManager.enableAlphaTest();
       if (type == SkullBlock.Types.PLAYER) {
-         GlStateManager.setProfile(GlStateManager.Profile.PLAYER_SKIN);
+         //GlStateManager.setProfile(GlStateManager.Profile.PLAYER_SKIN);
       }
 
-      genericheadmodel.func_217104_a(animationProgress, 0.0F, 0.0F, rotationIn, 0.0F, 0.0625F); //renders head
+      //genericheadmodel.func_217104_a(animationProgress, 0.0F, 0.0F, rotationIn, 0.0F, 0.0625F); //renders head
+      Tessellator tessellator = Tessellator.getInstance();
+      BufferBuilder bufferbuilder = tessellator.getBuffer();
+      
+      //face
+      bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+      bufferbuilder.pos(0, 0, 0).tex(0.125, 0.25).endVertex();
+      bufferbuilder.pos(0, -0.5, 0).tex(0.125, 0.125).endVertex();
+      bufferbuilder.pos(-0.5, -0.5, 0).tex(0.25, 0.125).endVertex();
+      bufferbuilder.pos(-0.5, 0, 0).tex(0.25, 0.25).endVertex();
+
+      tessellator.draw();
+      
+      //helmet front
+      bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+      bufferbuilder.pos(0, 0, -0.25/16.0).tex(0.625, 0.25).endVertex();
+      bufferbuilder.pos(0, -0.5, -0.25/16.0).tex(0.625, 0.125).endVertex();
+      bufferbuilder.pos(-0.5, -0.5, -0.25/16.0).tex(0.75, 0.125).endVertex();
+      bufferbuilder.pos(-0.5, 0, -0.25/16.0).tex(0.75, 0.25).endVertex();
+
+      tessellator.draw();
+
       
       GlStateManager.popMatrix();
       
@@ -127,19 +150,19 @@ public class RetinalScannerTileEntityRenderer extends TileEntityRenderer<Retinal
       GlStateManager.scalef(1.0F, 1.0F, 1.0F); //restore scaling
       GlStateManager.translatef(x, y, z); //translate to block corner
       //RenderHelper.disableStandardItemLighting();
-      GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-      GlStateManager.enableBlend();
+      //GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+      //GlStateManager.enableBlend();
 
-      Tessellator tessellator = Tessellator.getInstance();
-      BufferBuilder bufferbuilder = tessellator.getBuffer();
+//      Tessellator tessellator = Tessellator.getInstance();
+//      BufferBuilder bufferbuilder = tessellator.getBuffer();
       
-      this.bindTexture (new ResourceLocation(SecurityCraft.MODID, "textures/block/retinal_scanner_front.png"));
+      this.bindTexture (new ResourceLocation(SecurityCraft.MODID, "textures/block/retinal_scanner_front_hole.png"));
 
       bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
       bufferbuilder.pos(0, 0, 0).tex(0, 1).endVertex();
-      bufferbuilder.pos(1, 0, 0).tex(1, 1).endVertex();
-      bufferbuilder.pos(1, 1, 0).tex(1, 0).endVertex();
       bufferbuilder.pos(0, 1, 0).tex(0, 0).endVertex();
+      bufferbuilder.pos(1, 1, 0).tex(1, 0).endVertex();
+      bufferbuilder.pos(1, 0, 0).tex(1, 1).endVertex();
 
       tessellator.draw();
       
@@ -147,11 +170,12 @@ public class RetinalScannerTileEntityRenderer extends TileEntityRenderer<Retinal
 
       bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
       bufferbuilder.pos(1, 0, 0).tex(0, 1).endVertex();
-      bufferbuilder.pos(1, 0, 1).tex(1, 1).endVertex();
-      bufferbuilder.pos(1, 1, 1).tex(1, 0).endVertex();
       bufferbuilder.pos(1, 1, 0).tex(0, 0).endVertex();
+      bufferbuilder.pos(1, 1, 1).tex(1, 0).endVertex();
+      bufferbuilder.pos(1, 0, 1).tex(1, 1).endVertex();
       
       tessellator.draw();
+      
       
       bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
       bufferbuilder.pos(0, 0, 0).tex(0, 1).endVertex();
@@ -173,15 +197,15 @@ public class RetinalScannerTileEntityRenderer extends TileEntityRenderer<Retinal
 
       bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
       bufferbuilder.pos(0, 1, 0).tex(0, 1).endVertex();
-      bufferbuilder.pos(1, 1, 0).tex(1, 1).endVertex();
-      bufferbuilder.pos(1, 1, 1).tex(1, 0).endVertex();
       bufferbuilder.pos(0, 1, 1).tex(0, 0).endVertex();
+      bufferbuilder.pos(1, 1, 1).tex(1, 0).endVertex();
+      bufferbuilder.pos(1, 1, 0).tex(1, 1).endVertex();
       
       tessellator.draw();
 
       //RenderHelper.enableStandardItemLighting();
-      GlStateManager.disableBlend();
-      GlStateManager.enableCull();
+      //GlStateManager.disableBlend();
+      //GlStateManager.enableCull();
 
 
       // END CUSTOM CODE ---------
