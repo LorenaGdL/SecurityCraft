@@ -4,6 +4,7 @@ import java.util.function.Supplier;
 
 import net.geforcemods.securitycraft.api.CustomizableTileEntity;
 import net.geforcemods.securitycraft.api.IOwnable;
+import net.geforcemods.securitycraft.tileentity.RetinalScannerTileEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
@@ -75,7 +76,9 @@ public class UpdateTEOwnable
 
 			((IOwnable)te).setOwner(message.uuid, message.name);
 
-			if(message.customizable)
+			if (te instanceof RetinalScannerTileEntity)
+				te.read(message.tag);
+			else if(message.customizable)
 				((CustomizableTileEntity)te).read(message.tag);
 		});
 

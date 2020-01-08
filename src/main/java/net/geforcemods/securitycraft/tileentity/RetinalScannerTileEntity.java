@@ -10,10 +10,12 @@ import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.properties.Property;
 
 import net.geforcemods.securitycraft.SCContent;
+import net.geforcemods.securitycraft.SecurityCraft;
 import net.geforcemods.securitycraft.api.Option;
 import net.geforcemods.securitycraft.api.Option.BooleanOption;
 import net.geforcemods.securitycraft.blocks.RetinalScannerBlock;
 import net.geforcemods.securitycraft.misc.CustomModules;
+import net.geforcemods.securitycraft.network.server.RequestTEOwnableUpdate;
 import net.geforcemods.securitycraft.util.BlockUtils;
 import net.geforcemods.securitycraft.util.ClientUtils;
 import net.geforcemods.securitycraft.util.ModuleUtils;
@@ -26,6 +28,7 @@ import net.minecraft.nbt.NBTUtil;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.server.management.PlayerProfileCache;
+import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.util.StringUtils;
 import net.minecraft.util.math.BlockPos;
@@ -39,7 +42,7 @@ public class RetinalScannerTileEntity extends DisguisableTileEntity implements I
 
 	private BooleanOption activatedByEntities = new BooleanOption("activatedByEntities", false);
 	
-	 private GameProfile playerProfile;
+	 private GameProfile ownerProfile;
 	 private static PlayerProfileCache profileCache;
 	 private static MinecraftSessionService sessionService;
 
@@ -101,96 +104,99 @@ public class RetinalScannerTileEntity extends DisguisableTileEntity implements I
 	   }
 
 	   @Override
-	   public CompoundNBT write(CompoundNBT compound) {
-		   System.out.println("Write");
-	      super.write(compound);
-	      if (this.playerProfile != null) {
-	         CompoundNBT compoundnbt = new CompoundNBT();
-	         NBTUtil.writeGameProfile(compoundnbt, this.playerProfile);
-	         compound.put("ownerProfile", compoundnbt);
-			   System.out.println("Write - playerProfile: " + this.playerProfile);
-	      }
+	   public CompoundNBT write(CompoundNBT tag) {
+		  System.out.println("Write init");
+	      super.write(tag);
+//	      if (this.ownerProfile != null) {
+//	         CompoundNBT compoundnbt = new CompoundNBT();
+//	         NBTUtil.writeGameProfile(compoundnbt, this.ownerProfile);
+//	         compound.put("ownerProfile", compoundnbt);
+//			 System.out.println("Written - playerProfile: " + this.ownerProfile);
+//	      }
+	      if (!StringUtils.isNullOrEmpty(this.getOwner().getName()) && !(this.getOwner().getName().equals("owner")))
+	      {
+	    	  if (this.ownerProfile != null)
+	    	  {
+	    		  String profileOwner = this.ownerProfile.getName();
+	    		  if (this.getOwner().getName().equals(profileOwner))
+	    		  {
+	    			  this.updatePlayerProfile();
+	    			  CompoundNBT ownerProfileTag = new CompoundNBT();
+		    		  NBTUtil.writeGameProfile(ownerProfileTag, this.ownerProfile);
+		    		  tag.put("ownerProfile", ownerProfileTag);
+		    		  return tag;
+	    		  }   		  
+	    	  }
 
-	      return compound;
+	    	  this.setPlayerProfile(new GameProfile((UUID)null, this.getOwner().getName()));
+	    	  CompoundNBT ownerProfileTag = new CompoundNBT();
+    		  NBTUtil.writeGameProfile(ownerProfileTag, this.ownerProfile);
+    		  tag.put("ownerProfile", ownerProfileTag);
+    		  return tag;
+	      }
+	      
+
+	      return tag;
 	   }
 
 	   @Override
-	   public void read(CompoundNBT compound) {
-	    	 System.out.println("Test1");
-	      super.read(compound);
-	      if (compound.contains("ownerProfile", 10) && compound.contains("owner", 8)) {
-	    	  GameProfile profile = NBTUtil.readGameProfile(compound.getCompound("ownerProfile"));
-	    	  String profileOwner = profile.getName();
-	    	  if (compound.getString("owner").equals(profileOwner))
-	    		  this.setPlayerProfile(NBTUtil.readGameProfile(compound.getCompound("ownerProfile")));
-	    	  else {
-	    		 String s = compound.getString("owner");
-	 	    	 System.out.println("Test3 - " + s);
-	 	         if (!StringUtils.isNullOrEmpty(s)) {
-	 	            this.setPlayerProfile(new GameProfile((UUID)null, s));
-	 	         }
-	    	  }
-	    	  
-	      } else if (compound.contains("owner", 8)) {
-	         String s = compound.getString("owner");
-	    	 System.out.println("Test2 - " + s);
-	         if (!StringUtils.isNullOrEmpty(s)) {
-	            this.setPlayerProfile(new GameProfile((UUID)null, s));
-	         }
-	      }
-	      System.out.println("Read - " + compound);
-
+	   public void read(CompoundNBT tag) {
+		   System.out.println("Read init");
+			   super.read(tag);
+			   if (tag.contains("ownerProfile", 10))
+				   this.ownerProfile = NBTUtil.readGameProfile(tag.getCompound("ownerProfile"));
+			   System.out.println("Read profile - " + this.ownerProfile);
 	   }
 	   
 	   @Nullable
 	   @OnlyIn(Dist.CLIENT)
 	   public GameProfile getPlayerProfile() {
-	      return this.playerProfile;
+	      return this.ownerProfile;
 	   }
 
 	   /**
 	    * Retrieves packet to send to the client whenever this Tile Entity is resynced via World.notifyBlockUpdate. For
 	    * modded TE's, this packet comes back to you clientside in {@link #onDataPacket}
 	    */
-	   @Nullable
-	   @Override
-	   public SUpdateTileEntityPacket getUpdatePacket() {
-	      System.out.println("GetUpdatePacket");
-	      return new SUpdateTileEntityPacket(this.pos, 4, this.getUpdateTag());
-	   }
+//	   @Nullable
+//	   @Override
+//	   public SUpdateTileEntityPacket getUpdatePacket() {
+//	      System.out.println("GetUpdatePacket");
+//	      return new SUpdateTileEntityPacket(this.pos, 4, this.getUpdateTag());
+//	   }
 
 	   /**
 	    * Get an NBT compound to sync to the client with SPacketChunkData, used for initial loading of the chunk or when
 	    * many blocks change at once. This compound comes back to you clientside in {@link handleUpdateTag}
 	    */
-	   @Override
-	   public CompoundNBT getUpdateTag() {
-	    	 System.out.println("GetUpdateTag");
-		  CompoundNBT supertag=super.getUpdateTag();
-	      return write(supertag);
-	   }
+//	   @Override
+//	   public CompoundNBT getUpdateTag() {
+//	    	 System.out.println("GetUpdateTag");
+//		  CompoundNBT supertag=super.getUpdateTag();
+//	      return write(supertag);
+//	   }
+//	   
+//	    @Override
+//	    public void handleUpdateTag(CompoundNBT tag) {
+//	    	super.handleUpdateTag(tag);
+//	    	read(tag);
+//	    }
 	   
-	    @Override
-	    public void handleUpdateTag(CompoundNBT tag) {
-	    	super.handleUpdateTag(tag);
-	    	read(tag);
-	    }
-	   
-	   @Override
-	    public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket packet) {
-	        // Here we get the packet from the server and read it into our client side tile entity
-	    	 System.out.println("onDataPacket");
-	        this.read(packet.getNbtCompound());
-	    }
+//	   @Override
+//	    public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket packet) {
+//	        // Here we get the packet from the server and read it into our client side tile entity
+//	    	 System.out.println("onDataPacket");
+//	        this.read(packet.getNbtCompound());
+//	    }
 
 	   public void setPlayerProfile(@Nullable GameProfile p_195485_1_) {
-	      this.playerProfile = p_195485_1_;
+	      this.ownerProfile = p_195485_1_;
 	      this.updatePlayerProfile();
 	   }
 
 	   private void updatePlayerProfile() {
-	      this.playerProfile = updateGameProfile(this.playerProfile);
-	      this.markDirty();
+	      this.ownerProfile = updateGameProfile(this.ownerProfile);
+	      //this.markDirty();
 	   }
 
 	   //CAREFUL HERE!!! TO REVIEW (ONLY CLIENT ADDED MANUALLY)
@@ -231,4 +237,10 @@ public class RetinalScannerTileEntity extends DisguisableTileEntity implements I
 	      }
 	   }
 
+		@Override
+		public void onLoad()
+		{
+			if(world.isRemote)
+				SecurityCraft.channel.sendToServer(new RequestTEOwnableUpdate(pos, world.getDimension().getType().getId()));
+		}
 }

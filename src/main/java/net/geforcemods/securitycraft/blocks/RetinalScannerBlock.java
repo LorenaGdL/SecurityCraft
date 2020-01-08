@@ -50,24 +50,16 @@ public class RetinalScannerBlock extends SkullPlayerBlock {
 	@Override
 	public void onBlockPlacedBy(World world, BlockPos pos, BlockState state, LivingEntity entity, ItemStack stack){
 		if(entity instanceof PlayerEntity)
+		{
 			MinecraftForge.EVENT_BUS.post(new OwnershipEvent(world, pos, (PlayerEntity)entity));
+		      TileEntity tileentity = world.getTileEntity(pos);
+		      if (tileentity instanceof RetinalScannerTileEntity) {
+		    	  GameProfile profile = ((PlayerEntity)entity).getGameProfile();
+		    	  ((RetinalScannerTileEntity) tileentity).setPlayerProfile(profile);
+		      }
+		}
 		super.onBlockPlacedBy(world, pos, state, entity, stack);
-	      TileEntity tileentity = world.getTileEntity(pos);
-	      if (tileentity instanceof RetinalScannerTileEntity) {
-	    	  RetinalScannerTileEntity retinalscannertileentity = (RetinalScannerTileEntity)tileentity;
-	    	// retinalscannertileentity.getOwner().setOwnerName("Vegetta777");
-	         GameProfile gameprofile = null;
-	         if (stack.hasTag()) {
-	            CompoundNBT compoundnbt = stack.getTag();
-	            if (compoundnbt.contains("ownerProfile", 10)) {
-	               gameprofile = NBTUtil.readGameProfile(compoundnbt.getCompound("ownerProfile"));
-	            } else if (compoundnbt.contains("owner", 8) && !StringUtils.isBlank(compoundnbt.getString("owner"))) {
-	               gameprofile = new GameProfile((UUID)null, compoundnbt.getString("owner"));
-	            }
-	         }
-
-	         retinalscannertileentity.setPlayerProfile(gameprofile);
-	      }
+	      
 	}
 
 	/**

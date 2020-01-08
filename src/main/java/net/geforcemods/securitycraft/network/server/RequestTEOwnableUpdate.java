@@ -8,6 +8,7 @@ import net.geforcemods.securitycraft.api.CustomizableTileEntity;
 import net.geforcemods.securitycraft.api.IOwnable;
 import net.geforcemods.securitycraft.network.client.UpdateTEOwnable;
 import net.geforcemods.securitycraft.tileentity.OwnableTileEntity;
+import net.geforcemods.securitycraft.tileentity.RetinalScannerTileEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
@@ -70,7 +71,12 @@ public class RequestTEOwnableUpdate
 	{
 		TileEntity te = ctx.get().getSender().world.getTileEntity(message.pos);
 		boolean customizable = te instanceof CustomizableTileEntity;
-		CompoundNBT tag = customizable ? ((CustomizableTileEntity)te).write(new CompoundNBT()) : null;
+		boolean isRetinalScanner = te instanceof RetinalScannerTileEntity;
+		CompoundNBT tag = null;
+		if (isRetinalScanner)
+			tag = te.write(new CompoundNBT());
+		else if (customizable)
+			tag = ((CustomizableTileEntity)te).write(new CompoundNBT());
 
 		if(te != null && te instanceof IOwnable)
 			SecurityCraft.channel.reply(new UpdateTEOwnable(te.getPos(), ((IOwnable)te).getOwner().getName(), ((IOwnable)te).getOwner().getUUID(), customizable, tag), ctx.get());
