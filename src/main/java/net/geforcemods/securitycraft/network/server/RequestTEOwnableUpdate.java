@@ -71,12 +71,7 @@ public class RequestTEOwnableUpdate
 	{
 		TileEntity te = ctx.get().getSender().world.getTileEntity(message.pos);
 		boolean customizable = te instanceof CustomizableTileEntity;
-		boolean isRetinalScanner = te instanceof RetinalScannerTileEntity;
-		CompoundNBT tag = null;
-		if (isRetinalScanner)
-			tag = te.write(new CompoundNBT());
-		else if (customizable)
-			tag = ((CustomizableTileEntity)te).write(new CompoundNBT());
+		CompoundNBT tag = customizable ? ((CustomizableTileEntity)te).write(new CompoundNBT()) : null;
 
 		if(te != null && te instanceof IOwnable)
 			SecurityCraft.channel.reply(new UpdateTEOwnable(te.getPos(), ((IOwnable)te).getOwner().getName(), ((IOwnable)te).getOwner().getUUID(), customizable, tag), ctx.get());
