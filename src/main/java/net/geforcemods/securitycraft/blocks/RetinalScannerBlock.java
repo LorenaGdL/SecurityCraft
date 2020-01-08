@@ -28,6 +28,7 @@ import net.minecraft.state.StateContainer.Builder;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.tileentity.SkullTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockReader;
@@ -44,6 +45,11 @@ public class RetinalScannerBlock extends SkullPlayerBlock {
 		this.setDefaultState(this.stateContainer.getBaseState().with(FACING, Direction.NORTH).with(POWERED, false));
 	}
 
+	 @Override
+	    public BlockRenderLayer getRenderLayer() {
+	        return BlockRenderLayer.CUTOUT_MIPPED;
+	    }
+	 
 	/**
 	 * Called when the block is placed in the world.
 	 */

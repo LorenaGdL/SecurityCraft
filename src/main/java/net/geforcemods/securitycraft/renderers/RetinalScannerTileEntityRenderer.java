@@ -8,17 +8,25 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import java.util.Map;
 import javax.annotation.Nullable;
 
+import org.lwjgl.opengl.GL11;
+
+import net.geforcemods.securitycraft.SecurityCraft;
 import net.geforcemods.securitycraft.tileentity.RetinalScannerTileEntity;
 import net.minecraft.block.AbstractSkullBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.SkullBlock;
 import net.minecraft.block.WallSkullBlock;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.model.GenericHeadModel;
 import net.minecraft.client.renderer.entity.model.HumanoidHeadModel;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.renderer.tileentity.model.DragonHeadModel;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.tileentity.SkullTileEntity;
@@ -68,6 +76,9 @@ public class RetinalScannerTileEntityRenderer extends TileEntityRenderer<Retinal
 
    public void render(float x, float y, float z, @Nullable Direction facing, float rotationIn, SkullBlock.ISkullType type, @Nullable GameProfile playerProfile, int destroyStage, float animationProgress) {
       GenericHeadModel genericheadmodel = MODELS.get(type);
+      final ResourceLocation origTexture = new ResourceLocation("securitycraft:block/retinal_scanner_front");
+      TextureAtlasSprite sprite = Minecraft.getInstance().getTextureMap().getAtlasSprite(origTexture.toString());
+
       if (destroyStage >= 0) {
          this.bindTexture(DESTROY_STAGES[destroyStage]);
          GlStateManager.matrixMode(5890);
@@ -108,6 +119,33 @@ public class RetinalScannerTileEntityRenderer extends TileEntityRenderer<Retinal
       }
 
       genericheadmodel.func_217104_a(animationProgress, 0.0F, 0.0F, rotationIn, 0.0F, 0.0625F);
+      
+      //CUSTOM CODE -----  
+      
+      Tessellator tessellator = Tessellator.getInstance();
+      BufferBuilder bufferbuilder = tessellator.getBuffer();
+      
+      this.bindTexture (new ResourceLocation(SecurityCraft.MODID, "textures/block/retinal_scanner_front.png"));
+      RenderHelper.disableStandardItemLighting();
+      GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+      GlStateManager.enableBlend();
+      GlStateManager.disableCull();
+
+      bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+      bufferbuilder.pos(-0.5, 0, -0.2).tex(0, 1).endVertex();
+      bufferbuilder.pos(0.5, 0, -0.2).tex(1, 1).endVertex();
+      bufferbuilder.pos(0.5, -1, -0.2).tex(1, 0).endVertex();
+      bufferbuilder.pos(-0.5, -1, -0.2).tex(0, 0).endVertex();
+
+      tessellator.draw();
+
+      GlStateManager.enableCull();
+      GlStateManager.disableBlend();
+      RenderHelper.enableStandardItemLighting();
+
+      // END CUSTOM CODE ---------
+      
+      
       GlStateManager.popMatrix();
       if (destroyStage >= 0) {
          GlStateManager.matrixMode(5890);
