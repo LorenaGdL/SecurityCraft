@@ -53,9 +53,12 @@ public class RetinalScannerBlock extends SkullPlayerBlock {
 		{
 			MinecraftForge.EVENT_BUS.post(new OwnershipEvent(world, pos, (PlayerEntity)entity));
 		      TileEntity tileentity = world.getTileEntity(pos);
-		      if (tileentity instanceof RetinalScannerTileEntity) {
+		      if (!world.isRemote && tileentity instanceof RetinalScannerTileEntity) {
 		    	  GameProfile profile = ((PlayerEntity)entity).getGameProfile();
-		    	  ((RetinalScannerTileEntity) tileentity).setPlayerProfile(profile);
+		    	  if (profile != null)
+		    		  ((RetinalScannerTileEntity) tileentity).setPlayerProfile(profile);
+		    	  else
+		    		  ((RetinalScannerTileEntity) tileentity).setPlayerProfile(new GameProfile((UUID)null, ((PlayerEntity)entity).getName().getFormattedText()));
 		      }
 		}
 		super.onBlockPlacedBy(world, pos, state, entity, stack);
