@@ -127,8 +127,8 @@ public class RetinalScannerTileEntityRenderer extends TileEntityRenderer<Retinal
       Tessellator tessellator = Tessellator.getInstance();
       BufferBuilder bufferbuilder = tessellator.getBuffer();
       
-      //GlStateManager.enableBlend();
-      //GlStateManager.blendFunc(GL11.GL_ONE, GL11.GL_ZERO);
+      GlStateManager.enableBlend();
+      GlStateManager.blendFunc(GL11.GL_ONE, GL11.GL_ZERO);
       
       //face
       bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
@@ -141,14 +141,14 @@ public class RetinalScannerTileEntityRenderer extends TileEntityRenderer<Retinal
       
       //helmet front
       bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-      bufferbuilder.pos(0, 0, -0.25/16.0).tex(0.625, 0.25).endVertex();
-      bufferbuilder.pos(0, -0.5, -0.25/16.0).tex(0.625, 0.125).endVertex();
-      bufferbuilder.pos(-0.5, -0.5, -0.25/16.0).tex(0.75, 0.125).endVertex();
-      bufferbuilder.pos(-0.5, 0, -0.25/16.0).tex(0.75, 0.25).endVertex();
+      bufferbuilder.pos(0, 0, -0.125/16.0).tex(0.625, 0.25).endVertex();
+      bufferbuilder.pos(0, -0.5, -0.125/16.0).tex(0.625, 0.125).endVertex();
+      bufferbuilder.pos(-0.5, -0.5, -0.125/16.0).tex(0.75, 0.125).endVertex();
+      bufferbuilder.pos(-0.5, 0, -0.125/16.0).tex(0.75, 0.25).endVertex();
 
       tessellator.draw();
 
-      //GlStateManager.disableBlend();
+      GlStateManager.disableBlend();
       
       GlStateManager.popMatrix();
       
