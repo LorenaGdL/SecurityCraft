@@ -10,63 +10,40 @@ import javax.annotation.Nullable;
 
 import org.lwjgl.opengl.GL11;
 
-import net.geforcemods.securitycraft.SecurityCraft;
+import net.geforcemods.securitycraft.blocks.RetinalScannerBlock;
+import net.geforcemods.securitycraft.misc.CustomModules;
 import net.geforcemods.securitycraft.tileentity.RetinalScannerTileEntity;
-import net.minecraft.block.AbstractSkullBlock;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.SkullBlock;
 import net.minecraft.block.WallSkullBlock;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.entity.model.GenericHeadModel;
-import net.minecraft.client.renderer.entity.model.HumanoidHeadModel;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
-import net.minecraft.client.renderer.tileentity.model.DragonHeadModel;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.tileentity.SkullTileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Util;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class RetinalScannerTileEntityRenderer extends TileEntityRenderer<RetinalScannerTileEntity> {
    public static RetinalScannerTileEntityRenderer instance;
-   private static final Map<SkullBlock.ISkullType, GenericHeadModel> MODELS = Util.make(Maps.newHashMap(), (p_209262_0_) -> {
-      GenericHeadModel genericheadmodel = new GenericHeadModel(0, 0, 64, 32);
-      GenericHeadModel genericheadmodel1 = new HumanoidHeadModel();
-      DragonHeadModel dragonheadmodel = new DragonHeadModel(0.0F);
-      p_209262_0_.put(SkullBlock.Types.SKELETON, genericheadmodel);
-      p_209262_0_.put(SkullBlock.Types.WITHER_SKELETON, genericheadmodel);
-      p_209262_0_.put(SkullBlock.Types.PLAYER, genericheadmodel1);
-      p_209262_0_.put(SkullBlock.Types.ZOMBIE, genericheadmodel1);
-      p_209262_0_.put(SkullBlock.Types.CREEPER, genericheadmodel);
-      p_209262_0_.put(SkullBlock.Types.DRAGON, dragonheadmodel);
-   });
-   private static final Map<SkullBlock.ISkullType, ResourceLocation> SKINS = Util.make(Maps.newHashMap(), (p_209263_0_) -> {
-      p_209263_0_.put(SkullBlock.Types.SKELETON, new ResourceLocation("textures/entity/skeleton/skeleton.png"));
-      p_209263_0_.put(SkullBlock.Types.WITHER_SKELETON, new ResourceLocation("textures/entity/skeleton/wither_skeleton.png"));
-      p_209263_0_.put(SkullBlock.Types.ZOMBIE, new ResourceLocation("textures/entity/zombie/zombie.png"));
-      p_209263_0_.put(SkullBlock.Types.CREEPER, new ResourceLocation("textures/entity/creeper/creeper.png"));
-      p_209263_0_.put(SkullBlock.Types.DRAGON, new ResourceLocation("textures/entity/enderdragon/dragon.png"));
-      p_209263_0_.put(SkullBlock.Types.PLAYER, DefaultPlayerSkin.getDefaultSkinLegacy());
-   });
 
    public void render(RetinalScannerTileEntity tileEntityIn, double x, double y, double z, float partialTicks, int destroyStage) {
       //float f = tileEntityIn.getAnimationProgress(partialTicks);
       float f = 0.0F;
       BlockState blockstate = tileEntityIn.getBlockState();
+      System.out.println("isDisguised: " + tileEntityIn.hasModule(CustomModules.DISGUISE));
       boolean flag = blockstate.getBlock() instanceof WallSkullBlock;
-      Direction direction = flag ? blockstate.get(WallSkullBlock.FACING) : null;
-      float f1 = 22.5F * (float)(flag ? (2 + direction.getHorizontalIndex()) * 4 : blockstate.get(SkullBlock.ROTATION));
-      this.render((float)x, (float)y, (float)z, direction, f1, ((AbstractSkullBlock)blockstate.getBlock()).getSkullType(), tileEntityIn.getPlayerProfile(), destroyStage, f);
+      //Direction direction = flag ? blockstate.get(WallSkullBlock.FACING) : null;
+      Direction direction = blockstate.get(RetinalScannerBlock.FACING);
+      float f1 = 22.5F * (float)(flag ? (2 + direction.getHorizontalIndex()) * 4 : 0.0F);
+      if (!tileEntityIn.hasModule(CustomModules.DISGUISE))
+    	  this.render((float)x, (float)y, (float)z, direction, f1, tileEntityIn.getPlayerProfile(), destroyStage, f);
    }
 
    public void setRendererDispatcher(TileEntityRendererDispatcher rendererDispatcherIn) {
@@ -74,8 +51,7 @@ public class RetinalScannerTileEntityRenderer extends TileEntityRenderer<Retinal
       instance = this;
    }
 
-   public void render(float x, float y, float z, @Nullable Direction facing, float rotationIn, SkullBlock.ISkullType type, @Nullable GameProfile playerProfile, int destroyStage, float animationProgress) {
-      GenericHeadModel genericheadmodel = MODELS.get(type);
+   public void render(float x, float y, float z, @Nullable Direction facing, float rotationIn, @Nullable GameProfile playerProfile, int destroyStage, float animationProgress) {
       
       if (destroyStage >= 0) {
          this.bindTexture(DESTROY_STAGES[destroyStage]);
@@ -85,7 +61,7 @@ public class RetinalScannerTileEntityRenderer extends TileEntityRenderer<Retinal
          GlStateManager.translatef(0.0625F, 0.0625F, 0.0625F);
          GlStateManager.matrixMode(5888);
       } else {
-         this.bindTexture(this.func_199356_a(type, playerProfile));
+         this.bindTexture(this.func_199356_a(playerProfile));
       }
 
       GlStateManager.pushMatrix();
@@ -110,25 +86,56 @@ public class RetinalScannerTileEntityRenderer extends TileEntityRenderer<Retinal
 //         }
 //      }
       
-      GlStateManager.translatef(x + 0.25F, y + 1.0F/16.0F, z); //translate to block corner
+      
+      if (facing == null)
+    	  return;
+      else {
+        switch(facing) {
+        case NORTH:
+            GlStateManager.translatef(x + 0.25F, y + 1.0F/16.0F, z); //translate to block corner
+           break;
+        case SOUTH:
+        	GlStateManager.translatef(x + 0.75F, y + 1.0F/16.0F, z + 1.0F);
+            GlStateManager.rotatef(180.0F, 0.0F, 1.0F, 0.0F);
+           break;
+        case WEST:
+        	GlStateManager.translatef(x, y + 1.0F/16.0F, z + 0.75F);
+            GlStateManager.rotatef(90.0F, 0.0F, 1.0F, 0.0F);
+           break;
+        case EAST:
+        	GlStateManager.translatef(x + 1.0F, y + 1.0F/16.0F, z + 0.25F);
+            GlStateManager.rotatef(270.0F, 0.0F, 1.0F, 0.0F);
+        	break;
+        default:
+        	break;
+        }
+     }
+  
+      
+      //GlStateManager.translatef(x + 0.25F, y + 1.0F/16.0F, z); //translate to block corner
 
       GlStateManager.enableRescaleNormal();
       GlStateManager.scalef(-1.0F, -1.0F, 1.0F);
       GlStateManager.enableAlphaTest();
-      if (type == SkullBlock.Types.PLAYER) {
+      RenderHelper.disableStandardItemLighting();
+
+      //if (type == SkullBlock.Types.PLAYER) {
          //GlStateManager.setProfile(GlStateManager.Profile.PLAYER_SKIN);
-      }
+      //}
 
       //genericheadmodel.func_217104_a(animationProgress, 0.0F, 0.0F, rotationIn, 0.0F, 0.0625F); //renders head
       Tessellator tessellator = Tessellator.getInstance();
       BufferBuilder bufferbuilder = tessellator.getBuffer();
       
+      //GlStateManager.enableBlend();
+      //GlStateManager.blendFunc(GL11.GL_ONE, GL11.GL_ZERO);
+      
       //face
       bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-      bufferbuilder.pos(0, 0, 0).tex(0.125, 0.25).endVertex();
-      bufferbuilder.pos(0, -0.5, 0).tex(0.125, 0.125).endVertex();
-      bufferbuilder.pos(-0.5, -0.5, 0).tex(0.25, 0.125).endVertex();
-      bufferbuilder.pos(-0.5, 0, 0).tex(0.25, 0.25).endVertex();
+      bufferbuilder.pos(0, 0, -0.125/16.0).tex(0.125, 0.25).endVertex();
+      bufferbuilder.pos(0, -0.5, -0.125/16.0).tex(0.125, 0.125).endVertex();
+      bufferbuilder.pos(-0.5, -0.5, -0.125/16.0).tex(0.25, 0.125).endVertex();
+      bufferbuilder.pos(-0.5, 0, -0.125/16.0).tex(0.25, 0.25).endVertex();
 
       tessellator.draw();
       
@@ -141,6 +148,7 @@ public class RetinalScannerTileEntityRenderer extends TileEntityRenderer<Retinal
 
       tessellator.draw();
 
+      //GlStateManager.disableBlend();
       
       GlStateManager.popMatrix();
       
@@ -149,13 +157,14 @@ public class RetinalScannerTileEntityRenderer extends TileEntityRenderer<Retinal
 
       GlStateManager.scalef(1.0F, 1.0F, 1.0F); //restore scaling
       GlStateManager.translatef(x, y, z); //translate to block corner
-      //RenderHelper.disableStandardItemLighting();
+      RenderHelper.enableStandardItemLighting();
       //GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
       //GlStateManager.enableBlend();
 
 //      Tessellator tessellator = Tessellator.getInstance();
 //      BufferBuilder bufferbuilder = tessellator.getBuffer();
       
+      /*
       this.bindTexture (new ResourceLocation(SecurityCraft.MODID, "textures/block/retinal_scanner_front_hole.png"));
 
       bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
@@ -202,6 +211,7 @@ public class RetinalScannerTileEntityRenderer extends TileEntityRenderer<Retinal
       bufferbuilder.pos(1, 1, 0).tex(1, 1).endVertex();
       
       tessellator.draw();
+      */
 
       //RenderHelper.enableStandardItemLighting();
       //GlStateManager.disableBlend();
@@ -220,9 +230,9 @@ public class RetinalScannerTileEntityRenderer extends TileEntityRenderer<Retinal
 
    }
 
-   private ResourceLocation func_199356_a(SkullBlock.ISkullType p_199356_1_, @Nullable GameProfile p_199356_2_) {
-      ResourceLocation resourcelocation = SKINS.get(p_199356_1_);
-      if (p_199356_1_ == SkullBlock.Types.PLAYER && p_199356_2_ != null) {
+   private ResourceLocation func_199356_a(@Nullable GameProfile p_199356_2_) {
+      ResourceLocation resourcelocation = DefaultPlayerSkin.getDefaultSkinLegacy();
+      if (p_199356_2_ != null) {
          Minecraft minecraft = Minecraft.getInstance();
          Map<Type, MinecraftProfileTexture> map = minecraft.getSkinManager().loadSkinFromCache(p_199356_2_);
          if (map.containsKey(Type.SKIN)) {
