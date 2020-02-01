@@ -3,46 +3,41 @@ package net.geforcemods.securitycraft.blocks;
 import java.util.Random;
 import java.util.UUID;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.mojang.authlib.GameProfile;
 
+import net.geforcemods.securitycraft.api.IOwnable;
 import net.geforcemods.securitycraft.misc.OwnershipEvent;
+import net.geforcemods.securitycraft.tileentity.OwnableTileEntity;
 import net.geforcemods.securitycraft.tileentity.RetinalScannerTileEntity;
 import net.geforcemods.securitycraft.util.BlockUtils;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.SkullPlayerBlock;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.NBTUtil;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.StateContainer.Builder;
 import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.tileentity.SkullTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 
-public class RetinalScannerBlock extends SkullPlayerBlock {
+public class RetinalScannerBlock extends DisguisableBlock {
 
 	public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 	public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
-	   protected static final VoxelShape SHAPE = Block.makeCuboidShape(0.0D, 0.0D, 0.0D, 16.0D, 16.0D, 16.0D);
-
 
 	public RetinalScannerBlock(Material material) {
 		super(Block.Properties.create(material).sound(SoundType.METAL).hardnessAndResistance(-1.0F, 6000000.0F));
@@ -52,23 +47,7 @@ public class RetinalScannerBlock extends SkullPlayerBlock {
 	 @Override
 	    public BlockRenderLayer getRenderLayer() {
 	        return BlockRenderLayer.CUTOUT_MIPPED;
-	    }
-	 
-	 @Override
-	 public VoxelShape getShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context) {
-	      return SHAPE;
-	   }
-	 
-	 @Override
-	 public VoxelShape getRenderShape(BlockState state, IBlockReader worldIn, BlockPos pos) {
-	      return SHAPE;
-	   }
-	 
-	 @Override
-	 public VoxelShape getCollisionShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context) {
-	      return SHAPE;
-	   }
-	 
+	    } 
 	
 	 
 	/**
@@ -82,10 +61,7 @@ public class RetinalScannerBlock extends SkullPlayerBlock {
 		      TileEntity tileentity = world.getTileEntity(pos);
 		      if (!world.isRemote && tileentity instanceof RetinalScannerTileEntity) {
 		    	  GameProfile profile = ((PlayerEntity)entity).getGameProfile();
-		    	  if (profile != null)
-		    		  ((RetinalScannerTileEntity) tileentity).setPlayerProfile(profile);
-		    	  else
-		    		  ((RetinalScannerTileEntity) tileentity).setPlayerProfile(new GameProfile((UUID)null, ((PlayerEntity)entity).getName().getFormattedText()));
+		    	  ((RetinalScannerTileEntity) tileentity).setPlayerProfile(profile);
 		      }
 		}
 		super.onBlockPlacedBy(world, pos, state, entity, stack);

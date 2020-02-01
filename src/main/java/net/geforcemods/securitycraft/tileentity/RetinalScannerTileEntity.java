@@ -15,6 +15,7 @@ import net.geforcemods.securitycraft.api.Option;
 import net.geforcemods.securitycraft.api.Option.BooleanOption;
 import net.geforcemods.securitycraft.blocks.RetinalScannerBlock;
 import net.geforcemods.securitycraft.misc.CustomModules;
+import net.geforcemods.securitycraft.network.client.RefreshDisguisableModel;
 import net.geforcemods.securitycraft.network.server.RequestTEOwnableUpdate;
 import net.geforcemods.securitycraft.util.BlockUtils;
 import net.geforcemods.securitycraft.util.ClientUtils;
@@ -23,6 +24,7 @@ import net.geforcemods.securitycraft.util.PlayerUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.NBTUtil;
 import net.minecraft.network.NetworkManager;
@@ -35,6 +37,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.network.PacketDistributor;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 
@@ -45,10 +48,32 @@ public class RetinalScannerTileEntity extends DisguisableTileEntity implements I
 	 private GameProfile ownerProfile;
 	 private static PlayerProfileCache profileCache;
 	 private static MinecraftSessionService sessionService;
+	 private boolean isDisguised;
 
 	public RetinalScannerTileEntity()
 	{
 		super(SCContent.teTypeRetinalScanner);		
+	}
+	
+	@Override
+	public void onModuleInserted(ItemStack stack, CustomModules module)
+	{
+		if(!world.isRemote && module == CustomModules.DISGUISE) {
+			SecurityCraft.channel.send(PacketDistributor.ALL.noArg(), new RefreshDisguisableModel(pos, true, stack));
+			isDisguised = true;
+		}
+	}
+
+	@Override
+	public void onModuleRemoved(ItemStack stack, CustomModules module)
+	{
+		if(!world.isRemote && module == CustomModules.DISGUISE)
+			SecurityCraft.channel.send(PacketDistributor.ALL.noArg(), new RefreshDisguisableModel(pos, false, stack));
+			isDisguised = false;
+	}
+	
+	public boolean isDisguised() {
+		return isDisguised;
 	}
 
 	@Override

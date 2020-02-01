@@ -6,6 +6,7 @@ import net.geforcemods.securitycraft.blocks.SecurityCameraBlock;
 import net.geforcemods.securitycraft.containers.GenericContainer;
 import net.geforcemods.securitycraft.entity.SecurityCameraEntity;
 import net.geforcemods.securitycraft.models.DisguisableDynamicBakedModel;
+import net.geforcemods.securitycraft.models.RetinalScannerDynamicBakedModel;
 import net.geforcemods.securitycraft.tileentity.SecurityCameraTileEntity;
 import net.geforcemods.securitycraft.util.BlockUtils;
 import net.geforcemods.securitycraft.util.GuiUtils;
@@ -95,6 +96,7 @@ public class SCClientEventHandler {
 			ModelResourceLocation mrl = new ModelResourceLocation(rl, stateString);
 
 			event.getModelRegistry().put(mrl, new DisguisableDynamicBakedModel(rl, event.getModelRegistry().get(mrl)));
+			//event.getModelRegistry().put(mrl, new RetinalScannerDynamicBakedModel(rl, event.getModelRegistry().get(mrl)));
 		}
 	}
 

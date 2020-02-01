@@ -37,7 +37,7 @@ public class RetinalScannerTileEntityRenderer extends TileEntityRenderer<Retinal
       //float f = tileEntityIn.getAnimationProgress(partialTicks);
       float f = 0.0F;
       BlockState blockstate = tileEntityIn.getBlockState();
-      System.out.println("isDisguised: " + tileEntityIn.hasModule(CustomModules.DISGUISE));
+      //System.out.println("isDisguised: " + tileEntityIn.hasModule(CustomModules.DISGUISE));
       boolean flag = blockstate.getBlock() instanceof WallSkullBlock;
       //Direction direction = flag ? blockstate.get(WallSkullBlock.FACING) : null;
       Direction direction = blockstate.get(RetinalScannerBlock.FACING);
