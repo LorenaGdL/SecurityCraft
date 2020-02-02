@@ -1,20 +1,15 @@
 package net.geforcemods.securitycraft.blocks;
 
 import java.util.Random;
-import java.util.UUID;
 
 import com.mojang.authlib.GameProfile;
 
-import net.geforcemods.securitycraft.api.IOwnable;
-import net.geforcemods.securitycraft.misc.OwnershipEvent;
-import net.geforcemods.securitycraft.tileentity.OwnableTileEntity;
 import net.geforcemods.securitycraft.tileentity.RetinalScannerTileEntity;
 import net.geforcemods.securitycraft.util.BlockUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItemUseContext;
@@ -27,12 +22,8 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
-import net.minecraftforge.common.MinecraftForge;
 
 public class RetinalScannerBlock extends DisguisableBlock {
 
@@ -53,20 +44,18 @@ public class RetinalScannerBlock extends DisguisableBlock {
 	/**
 	 * Called when the block is placed in the world.
 	 */
-	@Override
-	public void onBlockPlacedBy(World world, BlockPos pos, BlockState state, LivingEntity entity, ItemStack stack){
-		if(entity instanceof PlayerEntity)
-		{
-			MinecraftForge.EVENT_BUS.post(new OwnershipEvent(world, pos, (PlayerEntity)entity));
-		      TileEntity tileentity = world.getTileEntity(pos);
-		      if (!world.isRemote && tileentity instanceof RetinalScannerTileEntity) {
-		    	  GameProfile profile = ((PlayerEntity)entity).getGameProfile();
-		    	  ((RetinalScannerTileEntity) tileentity).setPlayerProfile(profile);
-		      }
-		}
-		super.onBlockPlacedBy(world, pos, state, entity, stack);
-	      
-	}
+	 @Override
+	 public void onBlockPlacedBy(World world, BlockPos pos, BlockState state, LivingEntity entity, ItemStack stack){
+		 if(entity instanceof PlayerEntity)
+		 {
+			 TileEntity tileentity = world.getTileEntity(pos);
+			 if (!world.isRemote && tileentity instanceof RetinalScannerTileEntity) {
+				 GameProfile profile = ((PlayerEntity)entity).getGameProfile();
+				 ((RetinalScannerTileEntity) tileentity).setPlayerProfile(profile);
+			 }
+		 }
+		 super.onBlockPlacedBy(world, pos, state, entity, stack);
+	 }
 
 	/**
 	 * Ticks the block if it's been scheduled
