@@ -4,9 +4,11 @@ import java.util.Random;
 
 import com.mojang.authlib.GameProfile;
 
+import net.geforcemods.securitycraft.misc.OwnershipEvent;
 import net.geforcemods.securitycraft.tileentity.RetinalScannerTileEntity;
 import net.geforcemods.securitycraft.util.BlockUtils;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
@@ -24,6 +26,7 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
 
 public class RetinalScannerBlock extends DisguisableBlock {
 
@@ -32,13 +35,18 @@ public class RetinalScannerBlock extends DisguisableBlock {
 
 	public RetinalScannerBlock(Material material) {
 		super(Block.Properties.create(material).sound(SoundType.METAL).hardnessAndResistance(-1.0F, 6000000.0F));
-		this.setDefaultState(this.stateContainer.getBaseState().with(FACING, Direction.NORTH).with(POWERED, false));
+		setDefaultState(this.stateContainer.getBaseState().with(FACING, Direction.NORTH).with(POWERED, false));
 	}
 
-	 @Override
-	    public BlockRenderLayer getRenderLayer() {
-	        return BlockRenderLayer.CUTOUT_MIPPED;
-	    } 
+	@Override	
+	public BlockRenderType getRenderType(BlockState state){	
+		return BlockRenderType.MODEL;	
+	}
+
+	@Override
+	public BlockRenderLayer getRenderLayer() {
+		return BlockRenderLayer.CUTOUT_MIPPED;
+	} 
 	
 	 
 	/**
@@ -53,8 +61,8 @@ public class RetinalScannerBlock extends DisguisableBlock {
 				 GameProfile profile = ((PlayerEntity)entity).getGameProfile();
 				 ((RetinalScannerTileEntity) tileentity).setPlayerProfile(profile);
 			 }
+			 MinecraftForge.EVENT_BUS.post(new OwnershipEvent(world, pos, (PlayerEntity)entity));
 		 }
-		 super.onBlockPlacedBy(world, pos, state, entity, stack);
 	 }
 
 	/**
@@ -103,7 +111,6 @@ public class RetinalScannerBlock extends DisguisableBlock {
 	@Override
 	protected void fillStateContainer(Builder<Block, BlockState> builder)
 	{	
-		super.fillStateContainer(builder);
 		builder.add(FACING);
 		builder.add(POWERED);
 	}
