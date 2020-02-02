@@ -31,6 +31,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class RetinalScannerTileEntityRenderer extends TileEntityRenderer<RetinalScannerTileEntity> {
 	public static RetinalScannerTileEntityRenderer instance;
+	private static final float CORRECT_FACTOR = 1 / 550F;
 
 	public void render(RetinalScannerTileEntity tileEntityIn, double x, double y, double z, float partialTicks, int destroyStage) {
 		Direction direction = tileEntityIn.getBlockState().get(RetinalScannerBlock.FACING);
@@ -84,31 +85,19 @@ public class RetinalScannerTileEntityRenderer extends TileEntityRenderer<Retinal
 
 		// face
 		bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-		bufferbuilder.pos(0.0, 0.0, 0).tex(0.125, 0.25).endVertex();
-		bufferbuilder.pos(0.0, -0.5, 0).tex(0.125, 0.125).endVertex();
-		bufferbuilder.pos(-0.5, -0.5, 0).tex(0.25, 0.125).endVertex();
-		bufferbuilder.pos(-0.5, 0.0, 0).tex(0.25, 0.25).endVertex();
+		bufferbuilder.pos(0 + CORRECT_FACTOR, 0 + CORRECT_FACTOR * 1.5, 0).tex(0.125, 0.25).endVertex();
+		bufferbuilder.pos(0 + CORRECT_FACTOR, -0.5 - CORRECT_FACTOR / 2, 0).tex(0.125, 0.125).endVertex();
+		bufferbuilder.pos(-0.5 - CORRECT_FACTOR, -0.5 - CORRECT_FACTOR / 2, 0).tex(0.25, 0.125).endVertex();
+		bufferbuilder.pos(-0.5 - CORRECT_FACTOR, 0 + CORRECT_FACTOR * 1.5, 0).tex(0.25, 0.25).endVertex();
 		tessellator.draw();
 
 		// helmet
 		bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-		bufferbuilder.pos(0, 0, 0).tex(0.625, 0.25).endVertex();
-		bufferbuilder.pos(0, -0.5, 0).tex(0.625, 0.125).endVertex();
-		bufferbuilder.pos(-0.5, -0.5, 0).tex(0.75, 0.125).endVertex();
-		bufferbuilder.pos(-0.5, 0, 0).tex(0.75, 0.25).endVertex();
+		bufferbuilder.pos(0 + CORRECT_FACTOR, 0 + CORRECT_FACTOR * 1.5, 0).tex(0.625, 0.25).endVertex();
+		bufferbuilder.pos(0 + CORRECT_FACTOR, -0.5 - CORRECT_FACTOR / 2, 0).tex(0.625, 0.125).endVertex();
+		bufferbuilder.pos(-0.5 - CORRECT_FACTOR, -0.5 - CORRECT_FACTOR / 2, 0).tex(0.75, 0.125).endVertex();
+		bufferbuilder.pos(-0.5 - CORRECT_FACTOR, 0 + CORRECT_FACTOR * 1.5, 0).tex(0.75, 0.25).endVertex();
 		tessellator.draw();
-
-		// background - to fix weird surrounding space around face quad
-		GlStateManager.disableTexture();
-		GlStateManager.color3f(0.0f, 0.0f, 0.0f);
-		bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
-		bufferbuilder.pos(0.01, 0.01, 0.125 / 16.0).tex(0.125, 0.25).endVertex();
-		bufferbuilder.pos(0.01, -0.51, 0.125 / 16.0).tex(0.125, 0.125).endVertex();
-		bufferbuilder.pos(-0.51, -0.51, 0.125 / 16.0).tex(0.25, 0.125).endVertex();
-		bufferbuilder.pos(-0.51, 0.01, 0.125 / 16.0).tex(0.25, 0.25).endVertex();
-		tessellator.draw();
-		GlStateManager.color3f(1.0f, 1.0f, 1.0f);
-		GlStateManager.enableTexture();
 
 		GlStateManager.disableBlend();
 		GlStateManager.popMatrix();
