@@ -32,10 +32,11 @@ import net.minecraftforge.fml.server.ServerLifecycleHooks;
 public class RetinalScannerTileEntity extends DisguisableTileEntity {
 
 	private BooleanOption activatedByEntities = new BooleanOption("activatedByEntities", false);
-	
-	 private GameProfile ownerProfile;
-	 private static PlayerProfileCache profileCache;
-	 private static MinecraftSessionService sessionService;
+	private BooleanOption sendMessage = new BooleanOption("sendMessage", true);
+
+	private GameProfile ownerProfile;
+	private static PlayerProfileCache profileCache;
+	private static MinecraftSessionService sessionService;
 
 	public RetinalScannerTileEntity()
 	{
@@ -44,7 +45,7 @@ public class RetinalScannerTileEntity extends DisguisableTileEntity {
 
 	@Override
 	public void entityViewed(LivingEntity entity){
-		if(!world.isRemote && !BlockUtils.getBlockPropertyAsBoolean(world, pos, RetinalScannerBlock.POWERED)){
+		if(!world.isRemote && !BlockUtils.getBlockProperty(world, pos, RetinalScannerBlock.POWERED)){
 			if(!(entity instanceof PlayerEntity) && !activatedByEntities.asBoolean())
 				return;
 
@@ -59,7 +60,7 @@ public class RetinalScannerTileEntity extends DisguisableTileEntity {
 			BlockUtils.setBlockProperty(world, pos, RetinalScannerBlock.POWERED, true);
 			world.getPendingBlockTicks().scheduleTick(new BlockPos(pos), SCContent.retinalScanner, 60);
 
-			if(entity instanceof PlayerEntity)
+			if(entity instanceof PlayerEntity && sendMessage.asBoolean())
 				PlayerUtils.sendMessageToPlayer((PlayerEntity) entity, ClientUtils.localize(SCContent.retinalScanner.getTranslationKey()), ClientUtils.localize("messages.securitycraft:retinalScanner.hello").replace("#", entity.getName().getFormattedText()), TextFormatting.GREEN);
 		}
 	}
@@ -81,7 +82,7 @@ public class RetinalScannerTileEntity extends DisguisableTileEntity {
 
 	@Override
 	public Option<?>[] customOptions() {
-		return new Option[]{ activatedByEntities };
+		return new Option[]{ activatedByEntities, sendMessage };
 	}
 		
 	public static void setProfileCache(PlayerProfileCache profileCacheIn) {
