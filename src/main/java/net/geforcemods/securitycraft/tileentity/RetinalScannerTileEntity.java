@@ -28,12 +28,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
-
 public class RetinalScannerTileEntity extends DisguisableTileEntity {
 
 	private BooleanOption activatedByEntities = new BooleanOption("activatedByEntities", false);
 	private BooleanOption sendMessage = new BooleanOption("sendMessage", true);
-
 	private GameProfile ownerProfile;
 	private static PlayerProfileCache profileCache;
 	private static MinecraftSessionService sessionService;
@@ -84,7 +82,7 @@ public class RetinalScannerTileEntity extends DisguisableTileEntity {
 	public Option<?>[] customOptions() {
 		return new Option[]{ activatedByEntities, sendMessage };
 	}
-		
+
 	public static void setProfileCache(PlayerProfileCache profileCacheIn) {
 		profileCache = profileCacheIn;
 	}
@@ -96,14 +94,14 @@ public class RetinalScannerTileEntity extends DisguisableTileEntity {
 	@Override
 	public CompoundNBT write(CompoundNBT tag) {
 		super.write(tag);
-		if (!StringUtils.isNullOrEmpty(this.getOwner().getName()) && !(this.getOwner().getName().equals("owner")))
+		if(!StringUtils.isNullOrEmpty(getOwner().getName()) && !(getOwner().getName().equals("owner")))
 		{
-			if (this.ownerProfile == null || !this.getOwner().getName().equals(this.ownerProfile.getName()))
-				this.setPlayerProfile(new GameProfile((UUID)null, this.getOwner().getName()));
+			if(ownerProfile == null || !getOwner().getName().equals(ownerProfile.getName()))
+				setPlayerProfile(new GameProfile((UUID)null, getOwner().getName()));
 
-			this.updatePlayerProfile();
+			updatePlayerProfile();
 			CompoundNBT ownerProfileTag = new CompoundNBT();
-			NBTUtil.writeGameProfile(ownerProfileTag, this.ownerProfile);
+			NBTUtil.writeGameProfile(ownerProfileTag, ownerProfile);
 			tag.put("ownerProfile", ownerProfileTag);
 			return tag;
 		}
@@ -113,21 +111,21 @@ public class RetinalScannerTileEntity extends DisguisableTileEntity {
 	@Override
 	public void read(CompoundNBT tag) {
 		super.read(tag);
-		if (tag.contains("ownerProfile", 10))
-			this.ownerProfile = NBTUtil.readGameProfile(tag.getCompound("ownerProfile"));
+		if(tag.contains("ownerProfile", 10))
+			ownerProfile = NBTUtil.readGameProfile(tag.getCompound("ownerProfile"));
 	}
 
 	@Nullable
 	public GameProfile getPlayerProfile() {
-		return this.ownerProfile;
+		return ownerProfile;
 	}
 
 	public void setPlayerProfile(@Nullable GameProfile profile) {
-		this.ownerProfile = profile;
+		ownerProfile = profile;
 	}
 
 	public void updatePlayerProfile() {
-		this.ownerProfile = updateGameProfile(this.ownerProfile);
+		ownerProfile = updateGameProfile(ownerProfile);
 	}
 
 	public static GameProfile updateGameProfile(GameProfile input) {
@@ -139,21 +137,16 @@ public class RetinalScannerTileEntity extends DisguisableTileEntity {
 		if (input != null && !StringUtils.isNullOrEmpty(input.getName())) {
 			if (profileCache != null && sessionService != null) {
 				GameProfile gameprofile = profileCache.getGameProfileForUsername(input.getName());
-				if (gameprofile == null) {
+				if (gameprofile == null)
 					return input;
-				} else {
+				else {
 					Property property = Iterables.getFirst(gameprofile.getProperties().get("textures"), (Property)null);
 					if (property == null) {
 						gameprofile = sessionService.fillProfileProperties(gameprofile, true);
 					}
-
 					return gameprofile;
 				}
-			} else {
-				return input;
-			}
-		} else {
-			return input;
-		}
+			} else return input;
+		} else return input;
 	}
 }

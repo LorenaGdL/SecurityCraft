@@ -53,23 +53,23 @@ public class RetinalScannerTileEntityRenderer extends TileEntityRenderer<Retinal
 			return;
 		else {
 			switch (facing) {
-			case NORTH:
-				GlStateManager.translatef(x + 0.25F, y + 1.0F / 16.0F, z);
-				break;
-			case SOUTH:
-				GlStateManager.translatef(x + 0.75F, y + 1.0F / 16.0F, z + 1.0F);
-				GlStateManager.rotatef(180.0F, 0.0F, 1.0F, 0.0F);
-				break;
-			case WEST:
-				GlStateManager.translatef(x, y + 1.0F / 16.0F, z + 0.75F);
-				GlStateManager.rotatef(90.0F, 0.0F, 1.0F, 0.0F);
-				break;
-			case EAST:
-				GlStateManager.translatef(x + 1.0F, y + 1.0F / 16.0F, z + 0.25F);
-				GlStateManager.rotatef(270.0F, 0.0F, 1.0F, 0.0F);
-				break;
-			default:
-				break;
+				case NORTH:
+					GlStateManager.translatef(x + 0.25F, y + 1.0F / 16.0F, z);
+					break;
+				case SOUTH:
+					GlStateManager.translatef(x + 0.75F, y + 1.0F / 16.0F, z + 1.0F);
+					GlStateManager.rotatef(180.0F, 0.0F, 1.0F, 0.0F);
+					break;
+				case WEST:
+					GlStateManager.translatef(x, y + 1.0F / 16.0F, z + 0.75F);
+					GlStateManager.rotatef(90.0F, 0.0F, 1.0F, 0.0F);
+					break;
+				case EAST:
+					GlStateManager.translatef(x + 1.0F, y + 1.0F / 16.0F, z + 0.25F);
+					GlStateManager.rotatef(270.0F, 0.0F, 1.0F, 0.0F);
+					break;
+				default:
+					break;
 			}
 		}
 
