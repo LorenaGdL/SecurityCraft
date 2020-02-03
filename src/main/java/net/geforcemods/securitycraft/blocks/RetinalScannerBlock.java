@@ -8,7 +8,6 @@ import net.geforcemods.securitycraft.misc.OwnershipEvent;
 import net.geforcemods.securitycraft.tileentity.RetinalScannerTileEntity;
 import net.geforcemods.securitycraft.util.BlockUtils;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
@@ -25,6 +24,7 @@ import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockReader;
+import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 
@@ -35,20 +35,9 @@ public class RetinalScannerBlock extends DisguisableBlock {
 
 	public RetinalScannerBlock(Material material) {
 		super(Block.Properties.create(material).sound(SoundType.METAL).hardnessAndResistance(-1.0F, 6000000.0F));
-		setDefaultState(this.stateContainer.getBaseState().with(FACING, Direction.NORTH).with(POWERED, false));
+		setDefaultState(stateContainer.getBaseState().with(FACING, Direction.NORTH).with(POWERED, false));
 	}
 
-	@Override	
-	public BlockRenderType getRenderType(BlockState state){	
-		return BlockRenderType.MODEL;	
-	}
-
-	@Override
-	public BlockRenderLayer getRenderLayer() {
-		return BlockRenderLayer.CUTOUT_MIPPED;
-	} 
-	
-	 
 	/**
 	 * Called when the block is placed in the world.
 	 */
@@ -70,7 +59,7 @@ public class RetinalScannerBlock extends DisguisableBlock {
 	 */
 	@Override
 	public void tick(BlockState state, World world, BlockPos pos, Random random){
-		if (!world.isRemote && state.get(POWERED).booleanValue())
+		if (!world.isRemote && state.get(POWERED))
 			BlockUtils.setBlockProperty(world, pos, POWERED, false);
 	}
 
@@ -81,6 +70,12 @@ public class RetinalScannerBlock extends DisguisableBlock {
 	public boolean canProvidePower(BlockState state)
 	{
 		return true;
+	}
+	
+	@Override	
+	public boolean shouldCheckWeakPower(BlockState state, IWorldReader world, BlockPos pos, Direction side)	
+	{	
+		return false;
 	}
 
 	/**
@@ -110,13 +105,13 @@ public class RetinalScannerBlock extends DisguisableBlock {
 
 	@Override
 	protected void fillStateContainer(Builder<Block, BlockState> builder)
-	{	
+	{
 		builder.add(FACING);
 		builder.add(POWERED);
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(IBlockReader world) {
+	public TileEntity createTileEntity(BlockState state, IBlockReader world) {
 		return new RetinalScannerTileEntity().activatedByView();
 	}
 
